@@ -19,7 +19,7 @@ import {
   removeFavorite,
 } from '../weather/utils/favorites';
 import {ArrowLeft, Star1, SearchNormal1} from 'iconsax-react-nativejs';
-import {Input, colors} from '../design-system';
+import {Screen, Input, colors} from '../design-system';
 
 type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Search'>>;
 
@@ -116,82 +116,84 @@ export default function SearchScreen({navigation}: Props) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-blue-500">
-      <View className="flex-row items-center px-4 py-3">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-3">
-          <ArrowLeft size={24} color="#fff" />
-        </TouchableOpacity>
-        <Input
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search for a city..."
-          returnKeyType="search"
-          autoCorrect={false}
-        />
-      </View>
-
-      {loading && (
-        <View className="py-10 items-center">
-          <ActivityIndicator size="large" color="white" />
+    <Screen variant="clear" background="image">
+      <SafeAreaView className="flex-1">
+        <View className="flex-row items-center px-4 py-3">
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="mr-3">
+            <ArrowLeft size={24} color="#fff" />
+          </TouchableOpacity>
+          <Input
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search for a city..."
+            returnKeyType="search"
+            autoCorrect={false}
+          />
         </View>
-      )}
 
-      {error && !loading && (
-        <View className="py-10 items-center px-6">
-          <Text className={`${colors.textMuted} text-base text-center`}>
-            {error}
-          </Text>
-        </View>
-      )}
+        {loading && (
+          <View className="py-10 items-center">
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        )}
 
-      {!loading && !error && query.trim() !== '' && results.length > 0 && (
-        <FlatList
-          data={results}
-          keyExtractor={(item) => item.id.toString()}
-          className="px-4"
-          renderItem={({item}) => {
-            const label = item.admin1
-              ? `${item.name}, ${item.admin1}, ${item.country}`
-              : `${item.name}, ${item.country}`;
-            const starred = isFav(item);
+        {error && !loading && (
+          <View className="py-10 items-center px-6">
+            <Text className={`${colors.textMuted} text-base text-center`}>
+              {error}
+            </Text>
+          </View>
+        )}
 
-            return (
-              <TouchableOpacity
-                onPress={() => handleSelect(item)}
-                className={`${colors.surface} rounded-xl p-4 mb-2 flex-row items-center`}>
-                <View className="flex-1">
-                  <Text className={`${colors.textPrimary} font-semibold text-base`}>
-                    {label}
-                  </Text>
-                  <Text className={`${colors.textMuted} text-sm`}>
-                    {item.latitude.toFixed(2)}°, {item.longitude.toFixed(2)}°
-                  </Text>
-                </View>
+        {!loading && !error && query.trim() !== '' && results.length > 0 && (
+          <FlatList
+            data={results}
+            keyExtractor={(item) => item.id.toString()}
+            className="px-4"
+            renderItem={({item}) => {
+              const label = item.admin1
+                ? `${item.name}, ${item.admin1}, ${item.country}`
+                : `${item.name}, ${item.country}`;
+              const starred = isFav(item);
+
+              return (
                 <TouchableOpacity
-                  onPress={() => toggleFavorite(item)}
-                  className="ml-2 p-2">
-                  {starred ? (
-                    <Star1 size={24} color="#fff" variant="Bold" />
-                  ) : (
-                    <Star1 size={24} color="#fff" variant="Outline" />
-                  )}
+                  onPress={() => handleSelect(item)}
+                  className={`${colors.surface} rounded-xl p-4 mb-2 flex-row items-center`}>
+                  <View className="flex-1">
+                    <Text className={`${colors.textPrimary} font-semibold text-base`}>
+                      {label}
+                    </Text>
+                    <Text className={`${colors.textMuted} text-sm`}>
+                      {item.latitude.toFixed(2)}°, {item.longitude.toFixed(2)}°
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => toggleFavorite(item)}
+                    className="ml-2 p-2">
+                    {starred ? (
+                      <Star1 size={24} color="#fff" variant="Bold" />
+                    ) : (
+                      <Star1 size={24} color="#fff" variant="Outline" />
+                    )}
+                  </TouchableOpacity>
                 </TouchableOpacity>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      )}
+              );
+            }}
+          />
+        )}
 
-      {!query.trim() && (
-        <View className="py-20 items-center px-6">
-          <SearchNormal1 size={24} color="white" opacity={0.5} />
-          <Text className={`${colors.textMuted} text-base text-center`}>
-            Type a city name to search
-          </Text>
-        </View>
-      )}
-    </SafeAreaView>
+        {!query.trim() && (
+          <View className="py-20 items-center px-6">
+            <SearchNormal1 size={24} color="white" opacity={0.5} />
+            <Text className={`${colors.textMuted} text-base text-center`}>
+              Type a city name to search
+            </Text>
+          </View>
+        )}
+      </SafeAreaView>
+    </Screen>
   );
 }

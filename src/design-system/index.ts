@@ -6,3 +6,4 @@ export {default as IconButton} from './components/IconButton';
 export {default as Screen} from './components/Screen';
 export {default as Input} from './components/Input';
 export {default as TabBar} from './components/TabBar';
+export {default as BackgroundImage} from './components/BackgroundImage';

@@ -158,7 +158,7 @@ export default function HomeScreen({route, navigation}: Props) {
 
   if (locating) {
     return (
-      <Screen variant={variant}>
+      <Screen variant="clear" background="image">
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="white" />
           <Text className={`${colors.textPrimary} mt-4 text-base`}>
@@ -170,7 +170,7 @@ export default function HomeScreen({route, navigation}: Props) {
   }
 
   return (
-    <Screen variant={variant}>
+    <Screen variant={variant} background="image">
       <View className="flex-1">
         <View className="flex-row justify-between items-center px-6 py-4">
           <Text className="text-white text-2xl font-bold tracking-tight">
