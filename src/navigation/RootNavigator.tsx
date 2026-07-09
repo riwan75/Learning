@@ -1,6 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
 
 export type RootStackParamList = {
   Home:
@@ -11,6 +12,7 @@ export type RootStackParamList = {
       }
     | undefined;
   Search: undefined;
+  Favorites: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,14 +22,10 @@ export default function RootNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_bottom',
       }}>
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{presentation: 'modal'}}
-      />
+      <Stack.Screen name="Favorites" component={FavoritesScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
     </Stack.Navigator>
   );
 }

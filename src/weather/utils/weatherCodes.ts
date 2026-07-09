@@ -1,6 +1,7 @@
 import type {Icon} from 'iconsax-react-nativejs';
 import {
   Sun1,
+  Moon,
   CloudSunny,
   Cloud,
   CloudFog,
@@ -9,6 +10,16 @@ import {
   CloudLightning,
   InfoCircle,
 } from 'iconsax-react-nativejs';
+import {
+  VAR_CLEAR_PRIMARY,
+  VAR_CLEAR_SECONDARY,
+  VAR_CLOUDY_PRIMARY,
+  VAR_CLOUDY_SECONDARY,
+  VAR_RAIN_PRIMARY,
+  VAR_RAIN_SECONDARY,
+  VAR_SNOW_PRIMARY,
+  VAR_SNOW_SECONDARY,
+} from '../../styles/Color';
 
 export interface WeatherInfo {
   label: string;
@@ -18,34 +29,58 @@ export interface WeatherInfo {
 export type WeatherVariant = 'clear' | 'cloudy' | 'rain' | 'snow';
 
 export const VARIANT_COLORS: Record<WeatherVariant, [string, string]> = {
-  clear: ['#60a5fa', '#2563eb'],
-  cloudy: ['#94a3b8', '#475569'],
-  rain: ['#475569', '#1e293b'],
-  snow: ['#cbd5e1', '#64748b'],
+  clear: [VAR_CLEAR_PRIMARY, VAR_CLEAR_SECONDARY],
+  cloudy: [VAR_CLOUDY_PRIMARY, VAR_CLOUDY_SECONDARY],
+  rain: [VAR_RAIN_PRIMARY, VAR_RAIN_SECONDARY],
+  snow: [VAR_SNOW_PRIMARY, VAR_SNOW_SECONDARY],
 };
 
-export function getWeatherInfo(code: number): WeatherInfo {
-  if (code === 0) return {label: 'Clear', icon: Sun1};
-  if (code === 1) return {label: 'Mainly Clear', icon: Sun1};
-  if (code === 2) return {label: 'Partly Cloudy', icon: CloudSunny};
-  if (code === 3) return {label: 'Overcast', icon: Cloud};
-  if (code >= 45 && code <= 48) return {label: 'Fog', icon: CloudFog};
-  if (code >= 51 && code <= 55) return {label: 'Drizzle', icon: CloudDrizzle};
-  if (code >= 56 && code <= 57) return {label: 'Freezing Drizzle', icon: CloudDrizzle};
-  if (code >= 61 && code <= 65) return {label: 'Rain', icon: CloudDrizzle};
-  if (code >= 66 && code <= 67) return {label: 'Freezing Rain', icon: CloudDrizzle};
-  if (code >= 71 && code <= 77) return {label: 'Snowfall', icon: CloudSnow};
-  if (code >= 80 && code <= 82) return {label: 'Rain Showers', icon: CloudDrizzle};
-  if (code >= 85 && code <= 86) return {label: 'Snow Showers', icon: CloudSnow};
-  if (code >= 95) return {label: 'Thunderstorm', icon: CloudLightning};
+const WEATHER_RANGES: {
+  min: number;
+  max: number;
+  label: string;
+  dayIcon: Icon;
+  nightIcon?: Icon;
+}[] = [
+  {min: 0, max: 0, label: 'Clear', dayIcon: Sun1, nightIcon: Moon},
+  {min: 1, max: 1, label: 'Mainly Clear', dayIcon: Sun1, nightIcon: Moon},
+  {min: 2, max: 2, label: 'Partly Cloudy', dayIcon: CloudSunny},
+  {min: 3, max: 3, label: 'Overcast', dayIcon: Cloud},
+  {min: 45, max: 48, label: 'Fog', dayIcon: CloudFog},
+  {min: 51, max: 55, label: 'Drizzle', dayIcon: CloudDrizzle},
+  {min: 56, max: 57, label: 'Freezing Drizzle', dayIcon: CloudDrizzle},
+  {min: 61, max: 65, label: 'Rain', dayIcon: CloudDrizzle},
+  {min: 66, max: 67, label: 'Freezing Rain', dayIcon: CloudDrizzle},
+  {min: 71, max: 77, label: 'Snowfall', dayIcon: CloudSnow},
+  {min: 80, max: 82, label: 'Rain Showers', dayIcon: CloudDrizzle},
+  {min: 85, max: 86, label: 'Snow Showers', dayIcon: CloudSnow},
+  {min: 95, max: Infinity, label: 'Thunderstorm', dayIcon: CloudLightning},
+];
+
+const VARIANT_RANGES: {min: number; max: number; variant: WeatherVariant}[] = [
+  {min: 0, max: 2, variant: 'clear'},
+  {min: 45, max: 48, variant: 'cloudy'},
+  {min: 51, max: 67, variant: 'rain'},
+  {min: 71, max: 77, variant: 'snow'},
+  {min: 80, max: 82, variant: 'rain'},
+  {min: 85, max: 86, variant: 'snow'},
+  {min: 95, max: Infinity, variant: 'rain'},
+];
+
+export function getWeatherInfo(code: number, isDay?: number): WeatherInfo {
+  const night = isDay === 0;
+  const match = WEATHER_RANGES.find((r) => code >= r.min && code <= r.max);
+  if (match) {
+    return {
+      label: match.label,
+      icon: night && match.nightIcon ? match.nightIcon : match.dayIcon,
+    };
+  }
   return {label: 'Unknown', icon: InfoCircle};
 }
 
 export function getBackgroundVariant(code: number): WeatherVariant {
-  if (code <= 2) return 'clear';
-  if (code === 3 || (code >= 45 && code <= 48)) return 'cloudy';
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95)
-    return 'rain';
-  if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'snow';
-  return 'clear';
+  if (code === 3) return 'cloudy';
+  const match = VARIANT_RANGES.find((r) => code >= r.min && code <= r.max);
+  return match?.variant ?? 'clear';
 }

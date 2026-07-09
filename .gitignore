@@ -21,6 +21,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 **/.xcode.env.local
+ios/.xcode.env
 
 # Android/IntelliJ
 #
@@ -59,6 +60,11 @@ yarn-error.log
 
 # Bundle artifact
 *.jsbundle
+android/app/src/main/assets/index.android.bundle
+
+# Generated assets from react-native build
+android/app/src/main/res/drawable-*/
+android/app/src/main/res/raw/
 
 # Ruby / CocoaPods
 **/Pods/
@@ -69,6 +75,9 @@ yarn-error.log
 
 # Instructions / Design docs
 INSTRUCTIONS.md
+
+# Kilo agent metadata
+.kilo/
 
 # testing
 /coverage

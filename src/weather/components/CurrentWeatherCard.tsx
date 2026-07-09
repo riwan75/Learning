@@ -2,7 +2,25 @@ import {View, Text} from 'react-native';
 import type {CurrentWeather} from '../types';
 import {getWeatherInfo} from '../utils/weatherCodes';
 import {formatTemp, type Unit} from '../utils/units';
-import {Card, colors} from '../../design-system';
+import {Card} from '../../design-system';
+import {
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
+  TEXT_WHITE_60,
+  WHITE,
+  BORDER_DEFAULT,
+} from '../../styles/Color';
+import {
+  SIZE_LG,
+  SIZE_6XL,
+  SIZE_BASE,
+  SIZE_SM,
+  SEMIBOLD,
+  BOLD,
+} from '../../styles/Fonts';
+import {M_1, M_4, ML_2, PT_4} from '../../styles/Spacing';
+import {ICON_HERO} from '../../styles/Sizing';
 
 interface Props {
   data: CurrentWeather;
@@ -18,38 +36,50 @@ function formatDate(dateString: string) {
   });
 }
 
-export default function CurrentWeatherCard({data, cityName, unit}: Readonly<Props>) {
-  const weather = getWeatherInfo(data.weatherCode);
+export default function CurrentWeatherCard({
+  data,
+  cityName,
+  unit,
+}: Readonly<Props>) {
+  const weather = getWeatherInfo(data.weatherCode, data.isDay);
 
   return (
     <Card variant="default" className="items-center">
       {cityName && (
-        <Text className={`${colors.textPrimary} text-lg font-semibold mb-1`}>
+        <Text className={`${TEXT_PRIMARY} ${SIZE_LG} ${SEMIBOLD} ${M_1}`}>
           {cityName}
         </Text>
       )}
-      <weather.icon size={72} color="#fff" variant="Bold" />
-      <Text className={`${colors.textPrimary} text-6xl font-bold mb-1`}>
+      <weather.icon size={ICON_HERO} color={WHITE} variant="Bold" />
+      <Text className={`${TEXT_PRIMARY} ${SIZE_6XL} ${BOLD} ${M_1}`}>
         {formatTemp(data.temperature, unit)}
       </Text>
-      <Text className={`${colors.textSecondary} text-lg mb-4`}>{weather.label}</Text>
+      <Text className={`${TEXT_SECONDARY} ${SIZE_LG} ${M_4}`}>
+        {weather.label}
+        {data.precipitation !== undefined && data.precipitation > 0 && (
+          <Text className={`${TEXT_WHITE_60} ${SIZE_BASE} ${ML_2}`}>
+            · {data.precipitation}mm
+          </Text>
+        )}
+      </Text>
 
-      <View className="flex-row justify-around w-full border-t border-white/20 pt-4">
+      <View
+        className={`flex-row justify-around w-full border-t ${BORDER_DEFAULT} ${PT_4}`}>
         <View className="items-center">
-          <Text className={`${colors.textMuted} text-sm`}>Humidity</Text>
-          <Text className={`${colors.textPrimary} font-semibold text-base`}>
+          <Text className={`${TEXT_MUTED} ${SIZE_SM}`}>Humidity</Text>
+          <Text className={`${TEXT_PRIMARY} ${SEMIBOLD} ${SIZE_BASE}`}>
             {data.relativeHumidity}%
           </Text>
         </View>
         <View className="items-center">
-          <Text className={`${colors.textMuted} text-sm`}>Wind</Text>
-          <Text className={`${colors.textPrimary} font-semibold text-base`}>
+          <Text className={`${TEXT_MUTED} ${SIZE_SM}`}>Wind</Text>
+          <Text className={`${TEXT_PRIMARY} ${SEMIBOLD} ${SIZE_BASE}`}>
             {data.windSpeed} km/h
           </Text>
         </View>
         <View className="items-center">
-          <Text className={`${colors.textMuted} text-sm`}>Updated</Text>
-          <Text className={`${colors.textPrimary} font-semibold text-sm`}>
+          <Text className={`${TEXT_MUTED} ${SIZE_SM}`}>Updated</Text>
+          <Text className={`${TEXT_PRIMARY} ${SEMIBOLD} ${SIZE_SM}`}>
             {formatDate(data.time)}
           </Text>
         </View>

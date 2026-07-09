@@ -4,6 +4,13 @@ export interface CurrentWeather {
   windSpeed: number;
   weatherCode: number;
   time: string;
+  isDay?: number;
+  visibility?: number;
+  windDirection?: number;
+  windGusts?: number;
+  precipitation?: number;
+  rain?: number;
+  cloudCover?: number;
 }
 
 export interface DailyForecast {
@@ -18,6 +25,8 @@ export interface HourlyDataPoint {
   temperature: number;
   weatherCode: number;
   precipitationProbability: number;
+  precipitation?: number;
+  dewPoint?: number;
 }
 
 export interface WeatherDetailMetrics {
@@ -30,7 +39,11 @@ export interface WeatherDetailMetrics {
   precipitationProbabilityMax: number;
   windSpeed: number;
   humidity: number;
-  visibility: string;
+  visibility: number;
+  windDirection?: number;
+  windGusts?: number;
+  cloudCover?: number;
+  dewPoint?: number;
 }
 
 export interface WeatherData {

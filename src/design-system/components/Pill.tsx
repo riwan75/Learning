@@ -1,5 +1,6 @@
 import {View} from 'react-native';
-import {colors, radius} from '../tokens';
+import {BG_SURFACE} from '../../styles/Color';
+import {RADIUS_PILL} from '../../styles/Sizing';
 
 interface Props {
   className?: string;
@@ -9,7 +10,7 @@ interface Props {
 export default function Pill({className = '', children}: Readonly<Props>) {
   return (
     <View
-      className={`${colors.surface} ${radius.pill} flex-row overflow-hidden ${className}`.trim()}>
+      className={`${BG_SURFACE} ${RADIUS_PILL} flex-row overflow-hidden ${className}`.trim()}>
       {children}
     </View>
   );
