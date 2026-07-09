@@ -21,12 +21,21 @@ interface OpenMeteoResponse {
     apparent_temperature: number;
     pressure_msl: number;
     uv_index: number;
+    is_day: number;
+    visibility: number;
+    wind_direction_10m: number;
+    wind_gusts_10m: number;
+    precipitation: number;
+    rain: number;
+    cloud_cover: number;
   };
   hourly: {
     time: string[];
     temperature_2m: number[];
     weather_code: number[];
     precipitation_probability: number[];
+    precipitation: number[];
+    dew_point_2m: number[];
   };
   daily: {
     time: string[];
@@ -48,8 +57,9 @@ export async function fetchWeather(
     latitude: latitude.toString(),
     longitude: longitude.toString(),
     current:
-      'temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature,pressure_msl,uv_index',
-    hourly: 'temperature_2m,weather_code,precipitation_probability',
+      'temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature,pressure_msl,uv_index,is_day,visibility,wind_direction_10m,wind_gusts_10m,precipitation,rain,cloud_cover',
+    hourly:
+      'temperature_2m,weather_code,precipitation_probability,precipitation,dew_point_2m',
     daily:
       'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max',
     timezone: 'auto',
@@ -70,6 +80,13 @@ export async function fetchWeather(
     windSpeed: data.current.wind_speed_10m,
     weatherCode: data.current.weather_code,
     time: data.current.time,
+    isDay: data.current.is_day,
+    visibility: data.current.visibility,
+    windDirection: data.current.wind_direction_10m,
+    windGusts: data.current.wind_gusts_10m,
+    precipitation: data.current.precipitation,
+    rain: data.current.rain,
+    cloudCover: data.current.cloud_cover,
   };
 
   const daily: DailyForecast[] = data.daily.time.map((date, i) => ({
@@ -86,6 +103,8 @@ export async function fetchWeather(
       temperature: data.hourly.temperature_2m[i],
       weatherCode: data.hourly.weather_code[i],
       precipitationProbability: data.hourly.precipitation_probability[i],
+      precipitation: data.hourly.precipitation[i],
+      dewPoint: data.hourly.dew_point_2m[i],
     }));
 
   const details: WeatherDetailMetrics = {
@@ -98,7 +117,11 @@ export async function fetchWeather(
     precipitationProbabilityMax: data.daily.precipitation_probability_max[0],
     windSpeed: data.current.wind_speed_10m,
     humidity: data.current.relative_humidity_2m,
-    visibility: `${(100 / 1000).toFixed(1)} km`,
+    visibility: data.current.visibility,
+    windDirection: data.current.wind_direction_10m,
+    windGusts: data.current.wind_gusts_10m,
+    cloudCover: data.current.cloud_cover,
+    dewPoint: data.hourly.dew_point_2m[0],
   };
 
   return {

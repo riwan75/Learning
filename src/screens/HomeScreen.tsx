@@ -19,22 +19,42 @@ import CurrentWeatherCard from '../weather/components/CurrentWeatherCard';
 import DailyForecastList from '../weather/components/DailyForecastList';
 import CitySelector from '../weather/components/CitySelector';
 import DetailMetricsCard from '../weather/components/DetailMetricsCard';
-import HourlyChart from '../weather/components/HourlyChart';
+import SegmentedChart from '../weather/components/SegmentedChart';
 import {getJSON, setJSON} from '../shared/storage/storage';
 import {type Unit, UNIT_KEY} from '../weather/utils/units';
 import {getBackgroundVariant} from '../weather/utils/weatherCodes';
 import {getFavorites} from '../weather/utils/favorites';
+import {SearchNormal1, Heart} from 'iconsax-react-nativejs';
+import {Screen, Card, Pill} from '../design-system';
 import {
-  Screen,
-  Card,
-  Pill,
-  IconButton,
-  TabBar,
-  colors,
-  spacing,
-  radius,
-} from '../design-system';
-import {SearchNormal1} from 'iconsax-react-nativejs';
+  TEXT_PRIMARY,
+  TEXT_MUTED,
+  TEXT_SECONDARY,
+  ERROR_TEXT,
+  WARNING_BG,
+  WARNING_TEXT,
+  BG_SURFACE_PRESSED,
+  BG_ACCENT,
+  WHITE,
+} from '../styles/Color';
+import {
+  SIZE_2XL,
+  SIZE_BASE,
+  SIZE_SM,
+  BOLD,
+  SEMIBOLD,
+  TRACKING_TIGHT,
+} from '../styles/Fonts';
+import {
+  MT_4,
+  M_4,
+  P_SCREEN_X,
+  P_PILL_X,
+  P_PILL_Y,
+  P_PILL_ICON_X,
+  P_PILL_ICON_Y,
+} from '../styles/Spacing';
+import {ICON_SM, RADIUS_INPUT} from '../styles/Sizing';
 import {reverseGeocode} from '../weather/api/reverseGeocode';
 
 type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Home'>>;
@@ -132,13 +152,16 @@ export default function HomeScreen({route, navigation}: Props) {
     });
   }, []);
 
-  const goToGps = useCallback(() => {
+  const goToGps = useCallback(async () => {
     const gps = gpsCoordsRef.current;
     if (!gps) return;
     setCoords({latitude: gps.latitude, longitude: gps.longitude});
     setCityName(undefined);
     searchedRef.current = false;
     scrollRef.current?.scrollTo({y: 0, animated: true});
+
+    const result = await reverseGeocode(gps.latitude, gps.longitude);
+    if (result && !searchedRef.current) setCityName(result.label);
   }, []);
 
   const handleFavoriteSelect = useCallback((city: FavoriteCity) => {
@@ -161,7 +184,7 @@ export default function HomeScreen({route, navigation}: Props) {
       <Screen variant="clear" background="image">
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="white" />
-          <Text className={`${colors.textPrimary} mt-4 text-base`}>
+          <Text className={`${TEXT_PRIMARY} ${MT_4} ${SIZE_BASE}`}>
             Getting your location...
           </Text>
         </View>
@@ -173,53 +196,59 @@ export default function HomeScreen({route, navigation}: Props) {
     <Screen variant={variant} background="image">
       <View className="flex-1">
         <View className="flex-row justify-between items-center px-6 py-4">
-          <Text className="text-white text-2xl font-bold tracking-tight">
+          <Text
+            className={`${TEXT_PRIMARY} ${SIZE_2XL} ${BOLD} ${TRACKING_TIGHT}`}>
             Weather
           </Text>
           <View className="flex-row items-center gap-2">
             <Pill>
               <TouchableOpacity
                 onPress={toggleUnit}
-                className={`px-3 py-1 text-base ${
+                className={`${P_PILL_X} ${P_PILL_Y} ${SIZE_BASE} ${
                   unit === 'C'
-                    ? `${colors.accentBg} ${colors.textPrimary} font-semibold`
-                    : colors.textMuted
+                    ? `${BG_ACCENT} ${TEXT_PRIMARY} ${SEMIBOLD}`
+                    : TEXT_MUTED
                 }`}>
                 <Text
                   className={`${
-                    unit === 'C'
-                      ? `${colors.textPrimary} font-semibold`
-                      : colors.textMuted
+                    unit === 'C' ? `${TEXT_PRIMARY} ${SEMIBOLD}` : TEXT_MUTED
                   }`}>
                   °C
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={toggleUnit}
-                className={`px-3 py-1 text-base ${
+                className={`${P_PILL_X} ${P_PILL_Y} ${SIZE_BASE} ${
                   unit === 'F'
-                    ? `${colors.accentBg} ${colors.textPrimary} font-semibold`
-                    : colors.textMuted
+                    ? `${BG_ACCENT} ${TEXT_PRIMARY} ${SEMIBOLD}`
+                    : TEXT_MUTED
                 }`}>
                 <Text
                   className={`${
-                    unit === 'F'
-                      ? `${colors.textPrimary} font-semibold`
-                      : colors.textMuted
+                    unit === 'F' ? `${TEXT_PRIMARY} ${SEMIBOLD}` : TEXT_MUTED
                   }`}>
                   °F
                 </Text>
               </TouchableOpacity>
             </Pill>
-            <IconButton onPress={() => navigation.navigate('Search')}>
-              <SearchNormal1 size={20} color="#fff" />
-            </IconButton>
+            <Pill>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Search')}
+                className={`${P_PILL_ICON_X} ${P_PILL_ICON_Y}`}>
+                <SearchNormal1 size={ICON_SM} color={WHITE} variant="Linear" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Favorites')}
+                className={`${P_PILL_ICON_X} ${P_PILL_ICON_Y}`}>
+                <Heart size={ICON_SM} color={WHITE} variant="Linear" />
+              </TouchableOpacity>
+            </Pill>
           </View>
         </View>
 
         <ScrollView
           ref={scrollRef}
-          className={`flex-1 ${spacing.screenPadding}`}
+          className={`flex-1 ${P_SCREEN_X}`}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -241,13 +270,13 @@ export default function HomeScreen({route, navigation}: Props) {
           {gpsError && !coords && (
             <Card variant="default" className="items-center">
               <Text
-                className={`${colors.textSecondary} text-base text-center mb-4`}>
+                className={`${TEXT_SECONDARY} ${SIZE_BASE} text-center${M_4}`}>
                 {gpsError}
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Search')}
-                className={`${colors.surfacePressed} rounded-xl py-3 px-6`}>
-                <Text className={`${colors.textPrimary} font-semibold`}>
+                className={`${BG_SURFACE_PRESSED} ${RADIUS_INPUT} py-3 px-6`}>
+                <Text className={`${TEXT_PRIMARY} ${SEMIBOLD}`}>
                   Search City
                 </Text>
               </TouchableOpacity>
@@ -256,27 +285,25 @@ export default function HomeScreen({route, navigation}: Props) {
 
           {error && (
             <Card variant="default" className="items-center">
-              <Text className={`${colors.error} text-base text-center mb-1`}>
+              <Text className={`${ERROR_TEXT} ${SIZE_BASE} text-center mb-1`}>
                 {error}
               </Text>
-              <Text className={`${colors.textMuted} text-sm text-center mb-4`}>
+              <Text className={`${TEXT_MUTED} ${SIZE_SM} text-center${M_4}`}>
                 {stale
                   ? 'Showing cached data. Pull to retry.'
                   : 'Pull down to retry.'}
               </Text>
               <TouchableOpacity
                 onPress={handleRefresh}
-                className={`${colors.surfacePressed} rounded-xl py-2 px-5`}>
-                <Text className={`${colors.textPrimary} font-semibold`}>
-                  Retry
-                </Text>
+                className={`${BG_SURFACE_PRESSED} ${RADIUS_INPUT} py-2 px-5`}>
+                <Text className={`${TEXT_PRIMARY} ${SEMIBOLD}`}>Retry</Text>
               </TouchableOpacity>
             </Card>
           )}
 
           {stale && !error && (
-            <View className={`${colors.warningBg} rounded-xl py-2 px-4 mb-4`}>
-              <Text className={`${colors.warningText} text-sm text-center`}>
+            <View className={`${WARNING_BG} ${RADIUS_INPUT} py-2 px-4${M_4}`}>
+              <Text className={`${WARNING_TEXT} ${SIZE_SM} text-center`}>
                 Showing cached data. Pull to refresh.
               </Text>
             </View>
@@ -292,7 +319,7 @@ export default function HomeScreen({route, navigation}: Props) {
               <DetailMetricsCard data={data.details} unit={unit} />
               <DailyForecastList data={data.daily} unit={unit} />
               {data.hourly && data.hourly.length > 0 && (
-                <HourlyChart data={data.hourly} unit={unit} />
+                <SegmentedChart data={data.hourly} unit={unit} />
               )}
             </>
           )}
@@ -300,14 +327,12 @@ export default function HomeScreen({route, navigation}: Props) {
           {loading && !data && !error && (
             <View className="items-center py-20">
               <ActivityIndicator size="large" color="white" />
-              <Text className={`${colors.textPrimary} mt-4 text-base`}>
+              <Text className={`${TEXT_PRIMARY} ${MT_4} ${SIZE_BASE}`}>
                 Loading weather...
               </Text>
             </View>
           )}
         </ScrollView>
-
-        <TabBar />
       </View>
     </Screen>
   );

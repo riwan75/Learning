@@ -19,11 +19,24 @@ import {
   removeFavorite,
 } from '../weather/utils/favorites';
 import {ArrowLeft, Star1, SearchNormal1} from 'iconsax-react-nativejs';
-import {Screen, Input, colors} from '../design-system';
+import {Screen, Input} from '../design-system';
+import {TEXT_PRIMARY, TEXT_MUTED, BG_SURFACE, WHITE} from '../styles/Color';
+import {SIZE_BASE, SIZE_SM, SEMIBOLD} from '../styles/Fonts';
+import {
+  M_2,
+  MR_3,
+  ML_2,
+  P_INPUT,
+  P_SCREEN_X,
+  P_ACCENT_X_LG,
+  PY_10,
+  PY_20,
+} from '../styles/Spacing';
+import {ICON_XL, RADIUS_INPUT} from '../styles/Sizing';
 
 type Props = Readonly<NativeStackScreenProps<RootStackParamList, 'Search'>>;
 
-export default function SearchScreen({navigation}: Props) {
+export default function SearchScreen({navigation}: Readonly<Props>) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GeocodingResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +52,9 @@ export default function SearchScreen({navigation}: Props) {
   useEffect(() => {
     getFavorites().then((list) => {
       setFavoriteSet(
-        new Set(list.map((c) => `${c.latitude.toFixed(2)}:${c.longitude.toFixed(2)}`)),
+        new Set(
+          list.map((c) => `${c.latitude.toFixed(2)}:${c.longitude.toFixed(2)}`),
+        ),
       );
     });
   }, []);
@@ -63,9 +78,7 @@ export default function SearchScreen({navigation}: Props) {
           setError('No cities found. Try a different search.');
         }
       } catch (e: unknown) {
-        setError(
-          e instanceof Error ? e.message : 'Search failed. Try again.',
-        );
+        setError(e instanceof Error ? e.message : 'Search failed. Try again.');
       } finally {
         setLoading(false);
       }
@@ -121,8 +134,8 @@ export default function SearchScreen({navigation}: Props) {
         <View className="flex-row items-center px-4 py-3">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="mr-3">
-            <ArrowLeft size={24} color="#fff" />
+            className={MR_3}>
+            <ArrowLeft size={ICON_XL} color={WHITE} />
           </TouchableOpacity>
           <Input
             value={query}
@@ -134,14 +147,14 @@ export default function SearchScreen({navigation}: Props) {
         </View>
 
         {loading && (
-          <View className="py-10 items-center">
-            <ActivityIndicator size="large" color="white" />
+          <View className={`${PY_10} items-center`}>
+            <ActivityIndicator size="large" color={WHITE} />
           </View>
         )}
 
         {error && !loading && (
-          <View className="py-10 items-center px-6">
-            <Text className={`${colors.textMuted} text-base text-center`}>
+          <View className={`${PY_10} items-center ${P_ACCENT_X_LG}`}>
+            <Text className={`${TEXT_MUTED} ${SIZE_BASE} text-center`}>
               {error}
             </Text>
           </View>
@@ -151,7 +164,7 @@ export default function SearchScreen({navigation}: Props) {
           <FlatList
             data={results}
             keyExtractor={(item) => item.id.toString()}
-            className="px-4"
+            className={P_SCREEN_X}
             renderItem={({item}) => {
               const label = item.admin1
                 ? `${item.name}, ${item.admin1}, ${item.country}`
@@ -161,22 +174,23 @@ export default function SearchScreen({navigation}: Props) {
               return (
                 <TouchableOpacity
                   onPress={() => handleSelect(item)}
-                  className={`${colors.surface} rounded-xl p-4 mb-2 flex-row items-center`}>
+                  className={`${BG_SURFACE} ${RADIUS_INPUT} ${P_INPUT} ${M_2} flex-row items-center`}>
                   <View className="flex-1">
-                    <Text className={`${colors.textPrimary} font-semibold text-base`}>
+                    <Text
+                      className={`${TEXT_PRIMARY} ${SEMIBOLD} ${SIZE_BASE}`}>
                       {label}
                     </Text>
-                    <Text className={`${colors.textMuted} text-sm`}>
+                    <Text className={`${TEXT_MUTED} ${SIZE_SM}`}>
                       {item.latitude.toFixed(2)}°, {item.longitude.toFixed(2)}°
                     </Text>
                   </View>
                   <TouchableOpacity
                     onPress={() => toggleFavorite(item)}
-                    className="ml-2 p-2">
+                    className={`${ML_2} p-2`}>
                     {starred ? (
-                      <Star1 size={24} color="#fff" variant="Bold" />
+                      <Star1 size={ICON_XL} color={WHITE} variant="Bold" />
                     ) : (
-                      <Star1 size={24} color="#fff" variant="Outline" />
+                      <Star1 size={ICON_XL} color={WHITE} variant="Outline" />
                     )}
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -186,9 +200,9 @@ export default function SearchScreen({navigation}: Props) {
         )}
 
         {!query.trim() && (
-          <View className="py-20 items-center px-6">
-            <SearchNormal1 size={24} color="white" opacity={0.5} />
-            <Text className={`${colors.textMuted} text-base text-center`}>
+          <View className={`${PY_20} items-center ${P_ACCENT_X_LG}`}>
+            <SearchNormal1 size={ICON_XL} color={WHITE} opacity={0.5} />
+            <Text className={`${TEXT_MUTED} ${SIZE_BASE} text-center`}>
               Type a city name to search
             </Text>
           </View>

@@ -1,8 +1,18 @@
 import {useRef} from 'react';
 import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
-import {Location, CloseCircle} from 'iconsax-react-nativejs';
+import {Location} from 'iconsax-react-nativejs';
 import type {FavoriteCity} from '../types';
-import {colors} from '../../design-system';
+import {
+  TEXT_PRIMARY,
+  TEXT_MUTED,
+  BG_SURFACE,
+  BG_SURFACE_PRESSED,
+  WHITE,
+  PLACEHOLDER,
+} from '../../styles/Color';
+import {SIZE_SM, SEMIBOLD} from '../../styles/Fonts';
+import {ML_1_5, MR_2, M_3, P_SCREEN_X} from '../../styles/Spacing';
+import {ICON_XS} from '../../styles/Sizing';
 
 interface Props {
   favorites: FavoriteCity[];
@@ -36,7 +46,7 @@ export default function CitySelector({
   const isGpsActive = isSameCoords(currentLat, currentLon, gpsLat, gpsLon);
 
   return (
-    <View className="px-4 mb-3">
+    <View className={`${P_SCREEN_X} ${M_3}`}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -44,16 +54,19 @@ export default function CitySelector({
         className="overflow-visible">
         <TouchableOpacity
           onPress={onBackToGps}
-          className={`${colors.surface} rounded-full px-4 py-2 mr-2 ${
-            isGpsActive ? colors.surfacePressed : ''
+          className={`flex-row items-center ${BG_SURFACE} rounded-full px-4 py-2 ${MR_2} ${
+            isGpsActive ? BG_SURFACE_PRESSED : ''
           }`}>
+          <Location
+            size={ICON_XS}
+            color={isGpsActive ? WHITE : PLACEHOLDER}
+            variant="Bold"
+          />
           <Text
-            className={`text-sm ${
-              isGpsActive
-                ? `${colors.textPrimary} font-semibold`
-                : colors.textMuted
+            className={`${SIZE_SM} ${ML_1_5} ${
+              isGpsActive ? `${TEXT_PRIMARY} ${SEMIBOLD}` : TEXT_MUTED
             }`}>
-            <Location size={16} color="#fff" variant="Bold" /> Current Location
+            Current Location
           </Text>
         </TouchableOpacity>
 
@@ -66,29 +79,19 @@ export default function CitySelector({
           );
 
           return (
-            <View key={`${city.latitude.toFixed(2)}:${city.longitude.toFixed(2)}`} className="flex-row items-center mr-2">
-              <TouchableOpacity
-                onPress={() => onSelect(city)}
-                className={`${colors.surface} rounded-l-full px-4 py-2 ${
-                  isActive ? colors.surfacePressed : ''
+            <TouchableOpacity
+              key={`${city.latitude.toFixed(2)}:${city.longitude.toFixed(2)}`}
+              onPress={() => onSelect(city)}
+              className={`flex-row items-center rounded-full px-4 py-2 ${MR_2} ${
+                isActive ? BG_SURFACE_PRESSED : BG_SURFACE
+              }`}>
+              <Text
+                className={`${SIZE_SM} ${
+                  isActive ? `${TEXT_PRIMARY} ${SEMIBOLD}` : TEXT_MUTED
                 }`}>
-                <Text
-                  className={`text-sm ${
-                    isActive
-                      ? `${colors.textPrimary} font-semibold`
-                      : colors.textMuted
-                  }`}>
-                  {city.name}
-                </Text>
-              </TouchableOpacity>
-              {isActive && (
-                <TouchableOpacity
-                  onPress={onBackToGps}
-                  className={`${colors.surfacePressed} rounded-r-full px-2 py-2`}>
-                  <CloseCircle size={16} color="#fff" />
-                </TouchableOpacity>
-              )}
-            </View>
+                {city.name}
+              </Text>
+            </TouchableOpacity>
           );
         })}
       </ScrollView>
